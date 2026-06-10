@@ -2,6 +2,8 @@ import com.nomagic.magicdraw.core.Application
 import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement
 import com.nomagic.magicdraw.export.image.ImageExporter
 import java.io.File
+import javax.swing.JFileChooser
+import javax.swing.JOptionPane
 
 def project = Application.getInstance().getProject()
 if (project == null) {
@@ -21,6 +23,30 @@ try {
 } catch (Exception e) {
     // fallback if Cameo hides script path
     scriptDir = new File(System.getProperty("user.dir"))
+}
+
+/////////////////////////////////////////////
+// USER FOLDER SELECTION (OVERRIDES scriptDir)
+// Borrowed from exportDiagramsTest.groovy
+// Lets user pick the exact output location,
+// bypassing Cameo's sandboxed script path.
+/////////////////////////////////////////////
+
+def chooser = new JFileChooser()
+chooser.setDialogTitle("Select Output Folder for Diagram/Table Export")
+chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY)
+chooser.setAcceptAllFileFilterUsed(false)
+// Default to the detected scriptDir so the dialog opens near the script
+if (scriptDir != null && scriptDir.exists()) {
+    chooser.setCurrentDirectory(scriptDir)
+}
+int chooserResult = chooser.showOpenDialog(null)
+
+if (chooserResult == JFileChooser.APPROVE_OPTION) {
+    scriptDir = chooser.getSelectedFile()
+} else {
+    JOptionPane.showMessageDialog(null, "No folder selected. Export cancelled.")
+    return
 }
 
 def outputRoot = new File(scriptDir, "CameoExports")
