@@ -65,17 +65,31 @@ println "Total diagrams found: " + diagrams.size()
 
 diagrams.each { d ->
     try {
-        def dpe = project.getDiagram(d)
+        // d IS already the DiagramPresentationElement from getDiagrams()
+        // No need for project.getDiagram(d) which returns null
+        def dpe = d
         if (dpe == null) return
 
-        String type = d.getHumanType()
+        // Load and open the diagram so ImageExporter can render it
+        dpe.ensureLoaded()
+        dpe.open()
+
+        String type = dpe.getDiagramType()?.getType() ?: "Unknown"
         String safeType = type.replaceAll("[^a-zA-Z0-9_]", "_")
 
         File typeDir = new File(outputRoot, "Diagrams/${safeType}")
         typeDir.mkdirs()
 
-        String name = d.getName().replaceAll("[^a-zA-Z0-9_]", "_")
+        String rawName = dpe.getDiagram()?.getName() ?: "Unnamed"
+        String name = rawName.replaceAll("[^a-zA-Z0-9_]", "_")
         File outputFile = new File(typeDir, name + ".png")
+
+        // Handle duplicate filenames
+        int dupeCounter = 1
+        while (outputFile.exists()) {
+            outputFile = new File(typeDir, name + "_" + dupeCounter + ".png")
+            dupeCounter++
+        }
 
         ImageExporter.export(dpe, ImageExporter.PNG, outputFile)
 
@@ -86,7 +100,7 @@ diagrams.each { d ->
         }
 
     } catch (Exception e) {
-        println "Failed diagram: " + d.getName()
+        println "Failed diagram: " + (d.getDiagram()?.getName() ?: "unknown") + " - " + e.getMessage()
     }
 }
 
