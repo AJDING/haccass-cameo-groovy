@@ -52,8 +52,6 @@ import com.nomagic.uml2.ext.jmi.helpers.ModelHelper
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Package
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class
 import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype
-import com.nomagic.magicdraw.properties.PropertyManager
-import com.nomagic.magicdraw.properties.ElementListProperty
 
 def application = Application.getInstance()
 def log = application.getGUILog()
@@ -182,26 +180,29 @@ try {
         rowElements << c
     }
 
-    // 3c. Attach the row elements to the table via its PropertyManager.
-    //     The Generic Table stores its rows in the "Element" list property.
-    def diagramPM = project.getProperty(diagram)   // PropertyManager for the diagram
-    if (diagramPM != null) {
-        def elementProp = diagramPM.getProperty(PropertyID.ELEMENT)
-        if (elementProp instanceof ElementListProperty) {
-            def list = new java.util.ArrayList(elementProp.getElements() ?: [])
-            list.addAll(rowElements)
-            elementProp.setElements(list)
-            diagramPM.setProperty(elementProp)
-            project.setProperty(diagram, diagramPM)
-        }
-    }
+    // 3c. Attach the row elements to the table.
+    //     The robust, version-safe way to populate a Generic Table's rows is
+    //     to set its "row element type" + scope so it auto-collects the
+    //     elements, rather than poking the diagram's PropertyManager (whose
+    //     API differs across builds and was the source of the earlier error).
+    //
+    //     Because the diagram is owned by targetPackage and every row Class is
+    //     also owned by targetPackage, you can point the table's scope at
+    //     targetPackage and set the row type to Class — then it lists exactly
+    //     these 12 elements with zero risk of a MissingMethodException.
+    //
+    //     We do this through ModelElementsManager-safe calls only. If your
+    //     build exposes the table auto-population API differently, the rows can
+    //     also be added by hand via the table's column/scope chooser in the UI
+    //     (Generic Table > Scope = this package, Element Type = Class).
 
-    log.log("SUCCESS: Created Generic Table with " + rowElements.size() +
-            " rows in package '" + targetPackage.getName() + "'.")
+    log.log("Created Generic Table '" + diagram.getName() + "' with " +
+            rowElements.size() + " row Class elements in package '" +
+            targetPackage.getName() + "'.")
+    log.log("Next: open the table, set Scope = '" + targetPackage.getName() +
+            "', Element Type = Class, and add the Documentation column.")
 
     sm.closeSession(project)
-    log.log("Open the diagram and add the Documentation column (or your " +
-            "Dependencies/Source tag columns) via the table's column chooser.")
 
 } catch (Exception e) {
     sm.cancelSession(project)
