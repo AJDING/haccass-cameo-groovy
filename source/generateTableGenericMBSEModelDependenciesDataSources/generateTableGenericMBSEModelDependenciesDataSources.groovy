@@ -70,3 +70,50 @@ try {
         "Electrical Team; Hardware Team; Mechanical Team; System Team; Software Team")
 
     addRow("Functional Allocation and Decomposition",
+        "List of system functions, FHA",
+        "System Team; Safety Engineer; Chief Engineer")
+
+    addRow("Behavior",
+        "SDD",
+        "System Team")
+
+    addRow("Requirements (SSS, SES/MRS)",
+        "DOORS requirements",
+        "System Team")
+
+    // Reliability and Safety Analysis
+    addRow("Reliability Allocation",
+        "System Architecture, Functional Allocation, BOM, Schematics",
+        "Safety Engineer; Systems Team; Design Team")
+
+    addRow("FTA",
+        "System Architecture, Functional Decomposition, Schematics",
+        "Systems Team; Controller Team; Component Team")
+
+    addRow("System FMEA",
+        "Functional Allocation and Decomposition",
+        "Safety Engineer; Systems Team")
+
+    addRow("Equipment FMEA",
+        "BOM, Schematics",
+        "Controller Team; Component Team")
+
+    // Co-simulation models
+    addRow("Co-simulation with SW MBD model",
+        "Software MBD model",
+        "SW MBD Team")
+
+    addRow("Co-simulation with Electrical MBD model",
+        "Electrical MBD (Simscape) model",
+        "Electrical MBD Team")
+
+    addRow("Co-simulation with Performance model",
+        "Performance model",
+        "Performance Team")
+
+    //-----------------------------------------
+    println "✅ Generic Table created successfully."
+
+} finally {
+    SessionManager.getInstance().closeSession(project)
+}
