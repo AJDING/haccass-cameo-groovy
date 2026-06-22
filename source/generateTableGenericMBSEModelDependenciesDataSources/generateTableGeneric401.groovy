@@ -48,7 +48,7 @@ import com.nomagic.magicdraw.openapi.uml.SessionManager
 import com.nomagic.magicdraw.openapi.uml.ModelElementsManager
 import com.nomagic.magicdraw.openapi.uml.PresentationElementsManager
 import com.nomagic.magicdraw.uml.Finder
-import com.nomagic.uml2.ext.jmi.helpers.CoreHelper
+import com.nomagic.uml2.ext.jmi.helpers.ModelHelper
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Package
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class
 import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype
@@ -154,7 +154,7 @@ try {
     // 3a. Create the Generic Table diagram in the target package.
     //     "Generic Table" is the built-in diagram type name in 2024x.
     def diagram = mem.createDiagram("Generic Table", targetPackage)
-    CoreHelper.setName(diagram, "Table 4-1 MBSE Model Dependencies and Data Sources")
+    diagram.setName("Table 4-1 MBSE Model Dependencies and Data Sources")
 
     // 3b. Create one Class per row to act as the row element.
     //     Dependencies + Source are stored in documentation as
@@ -171,7 +171,10 @@ try {
         c.setName(scope)
         mem.addElement(c, targetPackage)
 
-        CoreHelper.setComment(c,
+        // ModelHelper.setComment(element, project, text) creates/sets the
+        // element's documentation comment. This is the correct OpenAPI call;
+        // CoreHelper.setComment does not exist.
+        ModelHelper.setComment(c,
             "Category: "     + category + "\n" +
             "Dependencies: " + deps     + "\n" +
             "Source: "       + src)
